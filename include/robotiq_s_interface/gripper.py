@@ -27,7 +27,7 @@ class Gripper():
         gripper_force=50,
         open_value=0.0,
         close_value=1.0,
-        node_name='ripl_robotiq_s_controller_node' ):
+        node_name='ripl_robotiq_s_interface_node' ):
 
         # initialize gripper node
         self.node_name = node_name
