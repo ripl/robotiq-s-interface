@@ -27,11 +27,18 @@ class Gripper():
         gripper_force=50,
         open_value=0.0,
         close_value=1.0,
-        node_name='ripl_robotiq_s_interface_node' ):
+        namespace=None ):
 
-        # initialize gripper node
-        self.node_name = node_name
-        rospy.init_node(node_name)
+        # initialize interface node
+        # self.node_name = '%srobotiq_s_interface_node' % ( namespace+'/' if namespace is not None else '' )
+
+        # initialize interface node (if needed)
+        if rospy.get_node_uri() is None:
+            self.node_name = '~robotiq_s_interface_node'
+            rospy.init_node(self.node_name)
+            ROS_INFO( "The Gripper interface was created outside a ROS node, a new node will be initialized!" )
+        else:
+            ROS_INFO( "The Gripper interface was created within a ROS node, no need to create a new one!" )
 
         # parameters
         self._open_value = float( max( 0.0, min(open_value, 1.0) ) )
@@ -371,6 +378,7 @@ class Gripper():
         self.is_shutdown = True
         self.grasp_mode = GraspMode.UNITIALIZED
         self.controller_thread.join()
+        rospy.signal_shutdown("SIGINT signal received")
 
 
 def _gripper_interface_controller( gripper_obj ):
