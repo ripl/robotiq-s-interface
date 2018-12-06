@@ -24,17 +24,15 @@ class Gripper():
         self,
         control_topic='/UR_1/SModelRobotOutput',
         feedback_topic='/UR_1/SModelRobotInput',
-        gripper_force=50,
+        gripper_force=10,
         open_value=0.0,
         close_value=1.0,
-        namespace=None ):
-
-        # initialize interface node
-        # self.node_name = '%srobotiq_s_interface_node' % ( namespace+'/' if namespace is not None else '' )
+        register_for_shutdown_signal=False
+        ):
 
         # initialize interface node (if needed)
         if rospy.get_node_uri() is None:
-            self.node_name = '~robotiq_s_interface_node'
+            self.node_name = 'robotiq_s_interface_node'
             rospy.init_node(self.node_name)
             ROS_INFO( "The Gripper interface was created outside a ROS node, a new node will be initialized!" )
         else:
@@ -74,7 +72,8 @@ class Gripper():
         self.controller_thread = Thread( target=_gripper_interface_controller, args=[self,] )
         self.controller_thread.start()
 
-        signal.signal(signal.SIGINT, self.shutdown)
+        if register_for_shutdown_signal:
+            signal.signal(signal.SIGINT, self.shutdown)
 
 
     def reset_controller(self):
@@ -262,7 +261,7 @@ class Gripper():
         if( np.count_nonzero(current_fingers_status-1) == 0 ):
             return True
         for i in range(3):
-            print "Finger #%d: d%r" % ( i+1, abs(current_fingers_position_norm[i]-open_position_norm[i]) )
+            # print "Finger #%d: d%r" % ( i+1, abs(current_fingers_position_norm[i]-open_position_norm[i]) )
             if( current_fingers_status[i]==3 and \
                 current_fingers_position_norm[i] > open_position_norm[i]+epsilon
                 ):
@@ -297,7 +296,7 @@ class Gripper():
         if( np.count_nonzero(current_fingers_status-2) == 0 ):
             return True
         for i in range(3):
-            print "Finger #%d: d%r" % ( i+1, abs(current_fingers_position_norm[i]-closed_position_norm[i]) )
+            # print "Finger #%d: d%r" % ( i+1, abs(current_fingers_position_norm[i]-closed_position_norm[i]) )
             if( current_fingers_status[i]==3 and \
                 current_fingers_position_norm[i] < closed_position_norm[i]-epsilon
                 ):
@@ -374,11 +373,13 @@ class Gripper():
         return self
 
     def shutdown(self, *args):
-        print 'Shutting down...'
+        print 'Shutting down Gripper...'
         self.is_shutdown = True
         self.grasp_mode = GraspMode.UNITIALIZED
         self.controller_thread.join()
-        rospy.signal_shutdown("SIGINT signal received")
+        # rospy.signal_shutdown("SIGINT signal received")
+        print 'Gripper released!'
+        return True
 
 
 def _gripper_interface_controller( gripper_obj ):
