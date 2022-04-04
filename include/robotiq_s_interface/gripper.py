@@ -210,7 +210,7 @@ class Gripper():
 
     def set_mode(self, mode):
         if mode not in [GraspMode.BASIC, GraspMode.PINCH, GraspMode.WIDE, GraspMode.SCISSOR]:
-            print 'Commanded mode `%s` does not exist. Nothing to do!' % mode
+            print('Commanded mode `%s` does not exist. Nothing to do!' % mode)
             return False
         modes_fcn = {
             GraspMode.BASIC : self.basic_mode,
@@ -373,12 +373,12 @@ class Gripper():
         return self
 
     def shutdown(self, *args):
-        print 'Shutting down Gripper...'
+        print('Shutting down Gripper...')
         self.is_shutdown = True
         self.grasp_mode = GraspMode.UNITIALIZED
         self.controller_thread.join()
         # rospy.signal_shutdown("SIGINT signal received")
-        print 'Gripper released!'
+        print('Gripper released!')
         return True
 
 
@@ -386,5 +386,5 @@ def _gripper_interface_controller( gripper_obj ):
     while (not gripper_obj.is_shutdown) and (not rospy.is_shutdown()):
         time_offset = time() - gripper_obj.sub_last_status_message_t
         if time_offset > 2.0:
-            print 'WARN: No feedback message in the last %d seconds' % time_offset
+            print('WARN: No feedback message in the last %d seconds' % time_offset)
         sleep(2.0)
