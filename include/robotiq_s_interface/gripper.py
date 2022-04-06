@@ -323,7 +323,7 @@ class Gripper():
         return self
 
     def release(self):
-        self.command.rPRA = self._open_value * 255.0
+        self.command.rPRA = int(self._open_value * 255.0)
         self.publish_command(self.command)
         self._sit_and_wait_grasp()
         return self
@@ -332,7 +332,7 @@ class Gripper():
         return self.release()
 
     def grasp(self):
-        self.command.rPRA = self._close_value * 255.0
+        self.command.rPRA = int(self._close_value * 255.0)
         self.publish_command(self.command)
         self._sit_and_wait_grasp()
         return self
