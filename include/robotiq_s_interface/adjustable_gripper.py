@@ -3,7 +3,7 @@
 """This is a simple variant of Gripper, where its open and close value can be adjusted at grasp time"""
 
 import rospy
-import roslib; roslib.load_manifest('robotiq_s_model_control')
+import roslib  # ; roslib.load_manifest('robotiq_s_model_control')
 from robotiq_s_model_articulated_msgs.msg import SModelRobotOutput, SModelRobotInput
 from time import sleep, time
 from enum import IntEnum
@@ -13,7 +13,7 @@ import numpy as np
 import signal
 import sys
 
-from robotiq_s_interface import Gripper, GraspMode, _gripper_interface_controller
+from .gripper import Gripper, GraspMode, _gripper_interface_controller
 
 
 class AdjustableGripper(Gripper):
@@ -94,6 +94,17 @@ class AdjustableGripper(Gripper):
                 ):
                 return False
         return True
+
+    def activate(self):
+        self.command = SModelRobotOutput()
+        self.command.rACT = 1
+        self.command.rGTO = 1
+        self.command.rSPA = 255
+        self.command.rFRA = self.gripper_force
+        self.publish_command(self.command)
+        self._sit_and_wait_activation()
+        self.grasp(0.)
+        return self
 
     def is_closed(self): #TODO: this does not work in scissor mode because we check the wrong axis
         _close_value_threshold = 0.6
