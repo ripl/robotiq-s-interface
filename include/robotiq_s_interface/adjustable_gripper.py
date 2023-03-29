@@ -131,20 +131,13 @@ class AdjustableGripper(Gripper):
                 return False
         return True
 
-    def release(self, open_value: float):
-        open_value = float(max(0.0, min(open_value, 1.0)))
-        self.command.rPRA = int(open_value * 255.0)
+    def grasp(self, grip_value: float):
+        grip_value = float(max(0.0, min(grip_value, 1.0)))
+        self.command.rPRA = int(grip_value * 255.0)
         self.publish_command(self.command)
         self._sit_and_wait_grasp()
         return self
 
-    open = release
-
-    def grasp(self, close_value: float):
-        close_value = float(max(0.0, min(close_value, 1.0)))
-        self.command.rPRA = int(close_value * 255.0)
-        self.publish_command(self.command)
-        self._sit_and_wait_grasp()
-        return self
-
-    close = grasp
+    open = NotImplemented
+    close = NotImplemented
+    release = NotImplemented
